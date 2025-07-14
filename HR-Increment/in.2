@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Panel - Employee Increment and Bonus Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif; /* Changed to Poppins for consistency */
+      transition: all 0.25s ease;
+    }
+
+    :root {
+      --primary: #3b82f6;
+      --primary-light: #60a5fa;
+      --primary-dark: #2563eb;
+      --accent: #0ea5e9;
+      --success: #10b981;
+      --neutral-50: #f9fafb;
+      --neutral-100: #f3f4f6;
+      --neutral-200: #e5e7eb;
+      --neutral-300: #d1d5db;
+      --neutral-600: #4b5563;
+      --neutral-700: #374151;
+      --neutral-800: #1f2937;
+      --error: #ef4444;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    body {
+      background-color: var(--neutral-100);
+      color: var(--neutral-700);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 34px;
+      margin-bottom: 5px;
+      letter-spacing: -0.025em;
+    }
+
+    header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    #hr-panel {
+      padding: 30px;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 25px;
+    }
+
+    .form-group {
+      position: relative;
+    }
+
+    .form-group:nth-child(9), /* Adjusted for comments now being the 9th child */
+    .form-group:last-of-type { /* Target comments and button to span two columns */
+      grid-column: span 2;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--neutral-600);
+    }
+
+    input, select, textarea { /* Added textarea */
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--neutral-200);
+      border-radius: 6px;
+      font-size: 14px;
+      color: var(--neutral-800);
+      background-color: white;
+      box-shadow: var(--shadow-sm);
+      resize: vertical; /* Allow vertical resizing for textarea */
+      min-height: 40px; /* Minimum height for textarea */
+    }
+
+    input:focus, select:focus, textarea:focus { /* Added textarea */
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+    }
+
+    input::placeholder, select::placeholder, textarea::placeholder { /* Added textarea */
+      color: var(--neutral-300);
+    }
+
+    /* Specific style for the Employee ID combined input */
+    .employee-id-input-group {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--neutral-200);
+      border-radius: 6px;
+      box-shadow: var(--shadow-sm);
+      padding: 0 12px;
+      background-color: white;
+    }
+
+    .employee-id-input-group span {
+      color: var(--neutral-600);
+      font-size: 14px;
+      padding-right: 5px;
+    }
+
+    .employee-id-input-group input {
+      border: none;
+      padding: 10px 0;
+      box-shadow: none;
+      flex-grow: 1;
+      background-color: transparent; /* Ensure background is transparent */
+    }
+
+    .employee-id-input-group input:focus {
+      box-shadow: none; /* Remove focus shadow for the inner input */
+    }
+    .employee-id-input-group.error {
+      border-color: var(--error);
+    }
+
+
+    button {
+      grid-column: span 2;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 0;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    #hr-message {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      text-align: center;
+      visibility: hidden;
+      height: 0;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    #hr-message.success {
+      visibility: visible;
+      height: auto;
+      opacity: 1;
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    #hr-message.error {
+      visibility: visible;
+      height: auto;
+      opacity: 1;
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      animation: pulse 1s;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+      70% { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        border-radius: 8px;
+      }
+      
+      #hr-panel {
+        padding: 20px;
+      }
+      
+      form {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      
+      .form-group:nth-child(9),
+      .form-group:last-of-type {
+        grid-column: span 1;
+      }
+      
+      button {
+        grid-column: span 1;
+      }
+    }
+
+    .calculation-display {
+      background-color: var(--neutral-50);
+      border: 1px solid var(--neutral-200);
+      border-radius: 6px;
+      padding: 20px;
+      margin-top: 30px;
+      display: none;
+    }
+
+    .calculation-display.active {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .calculation-display h3 {
+      color: var(--primary);
+      font-size: 16px;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    .calculation-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .calculation-item {
+      padding: 10px;
+    }
+
+    .calculation-item .label {
+      font-size: 12px;
+      color: var(--neutral-600);
+      margin-bottom: 5px;
+    }
+
+    .calculation-item .value {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--neutral-800);
+    }
+
+    .calculation-item.highlight .value {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .error-message {
+      color: var(--error);
+      font-size: 12px;
+      margin-top: 5px;
+      font-weight: 500;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    input.error, select.error, textarea.error { /* Added textarea.error */
+      border-color: var(--error);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>HR MANAGEMENT PANEL</h1>
+      <p>Employee Increment and Bonus Management</p>
+    </header>
+    
+    <div id="hr-panel">
+      <form id="hr-form">
+        <div class="form-group">
+          <label for="employee-id-suffix">Employee ID</label>
+          <div class="employee-id-input-group" id="employee-id-input-group">
+            <span>ATS0</span>
+            <input type="text" id="employee-id-suffix" placeholder="XXX" maxlength="3">
+          </div>
+          <input type="hidden" id="employee-id">           <div class="error-message" id="employee-id-error"></div>
+        </div>
+        
+        <div class="form-group">
+          <label for="employee-name">Employee Name</label>
+          <input type="text" id="employee-name" placeholder="Enter employee name">
+          <div class="error-message" id="employee-name-error"></div>
+        </div>
+        
+        <div class="form-group">
+          <label for="department">Department</label>
+          <select id="department">
+            <option value="">Select Department</option>
+            <option value="Engineering">Engineering</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Sales">Sales</option>
+            <option value="Finance">Finance</option>
+            <option value="HR">Human Resources</option>
+            <option value="Operations">Operations</option>
+          </select>
+          <div class="error-message" id="department-error"></div>
+        </div>
+        
+        <div class="form-group">
+          <label for="position">Position</label>
+          <input type="text" id="position" placeholder="Enter employee position">
+          <div class="error-message" id="position-error"></div>
+        </div>
+        
+        <div class="form-group">
+          <label for="month">Month</label>
+          <select id="month">
+            <option value="">Select Month</option>
+            <option value="January">January</option>
+            <option value="February">February</option>
+            <option value="March">March</option>
+            <option value="April">April</option>
+            <option value="May">May</option>
+            <option value="June">June</option>
+            <option value="July">July</option>
+            <option value="August">August</option>
+            <option value="September">September</option>
+            <option value="October">October</option>
+            <option value="November">November</option>
+            <option value="December">December</option>
+          </select>
+          <div class="error-message" id="month-error"></div>
+        </div>
+        
+        <div class="form-group">
+          <label for="year">Year</label>
+          <select id="year">
+            <option value="">Select Year</option>
+          </select>
+          <div class="error-message" id="year-error"></div>
+        </div>
+        
+        <div class="form-group">
+          <label for="current-salary">Current Salary</label>
+          <input type="text" id="current-salary" placeholder="Enter current monthly salary">
+          <div class="error-message" id="current-salary-error"></div>
+        </div>
+        
+        <div class="form-group">
+          <label for="increment-percentage">Increment Percentage (%)</label>
+          <input type="text" id="increment-percentage" placeholder="Enter increment percentage">
+          <div class="error-message" id="increment-percentage-error"></div>
+        </div>
+        
+        <div class="form-group">
+          <label for="bonus-amount">Bonus Amount</label>
+          <input type="text" id="bonus-amount" placeholder="Enter bonus amount">
+          <div class="error-message" id="bonus-amount-error"></div>
+        </div>
+        
+        <div class="form-group">
+          <label for="comments">Performance Notes</label>
+          <textarea id="comments" placeholder="Enter performance notes and comments" rows="4"></textarea>
+          <div class="error-message" id="comments-error"></div>
+        </div>
+        
+        <button type="submit">Save Employee Details</button>
+      </form>
+      
+      <div id="hr-message"></div>
+      
+      <div class="calculation-display" id="calculation-display">
+        <h3>Salary Adjustment Summary</h3>
+        <div class="calculation-details">
+          <div class="calculation-item">
+            <div class="label">Employee</div>
+            <div class="value" id="summary-employee">-</div>
+          </div>
+          <div class="calculation-item">
+            <div class="label">Current Salary</div>
+            <div class="value" id="summary-current">-</div>
+          </div>
+          <div class="calculation-item">
+            <div class="label">Increment Amount</div>
+            <div class="value" id="summary-increment">-</div>
+          </div>
+          <div class="calculation-item">
+            <div class="label">Bonus Amount</div>
+            <div class="value" id="summary-bonus">-</div>
+          </div>
+          <div class="calculation-item highlight">
+            <div class="label">New Salary</div>
+            <div class="value" id="summary-new-salary">-</div>
+          </div>
+          <div class="calculation-item">
+            <div class="label">Effective From</div>
+            <div class="value" id="summary-effective">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // --- General utility functions ---
+      function showError(inputId, message) {
+        const errorElement = document.getElementById(inputId + '-error');
+        const inputElement = document.getElementById(inputId);
+        
+        if (errorElement && inputElement) {
+          errorElement.textContent = message;
+          errorElement.classList.add('show');
+          
+          // Special handling for the combined Employee ID input
+          if (inputId === 'employee-id') {
+            document.getElementById('employee-id-input-group').classList.add('error');
+            document.getElementById('employee-id-suffix').classList.add('error'); // Add error class to the suffix input
+          } else {
+            inputElement.classList.add('error');
+          }
+        }
+        return false;
+      }
+
+      function clearError(inputId) {
+        const errorElement = document.getElementById(inputId + '-error');
+        const inputElement = document.getElementById(inputId);
+
+        if (errorElement && inputElement) {
+          errorElement.textContent = '';
+          errorElement.classList.remove('show');
+
+          if (inputId === 'employee-id') {
+            document.getElementById('employee-id-input-group').classList.remove('error');
+            document.getElementById('employee-id-suffix').classList.remove('error'); // Remove error class from suffix input
+          } else {
+            inputElement.classList.remove('error');
+          }
+        }
+      }
+
+      function showHrMessage(message, type) {
+        const messageElement = document.getElementById('hr-message');
+        messageElement.innerHTML = message;
+        messageElement.className = type; // Adds 'success' or 'error' class
+        
+        // Automatically hide message after 4 seconds
+        setTimeout(() => {
+          messageElement.innerHTML = '';
+          messageElement.className = ''; // Remove class to hide
+        }, 4000);
+      }
+
+
+      // --- Validation functions ---
+      function validateEmployeeId(id) {
+        const fullId = id.trim();
+        const regex = /^ATS0(?!000)\d{3}$/; // ATS0 followed by 3 digits, not 000
+
+        if (!fullId) {
+          return showError('employee-id', 'Employee ID is required.');
+        }
+        if (!regex.test(fullId)) {
+          return showError('employee-id', 'ID must be "ATS0" followed by 3 non-zero digits (e.g., ATS0123).');
+        }
+        clearError('employee-id');
+        return true;
+      }
+
+      function validateTextField(id, fieldName, minLength = 3, maxLength = 30) {
+        const value = document.getElementById(id).value.trim();
+        // Allow letters, numbers, spaces, and common punctuation for comments
+        const regex = (id === 'comments') ? /^[a-zA-Z0-9\s.,!?'"-]*$/ : /^[a-zA-Z\s]+$/;
+
+        if (!value) {
+          return showError(id, `${fieldName} is required.`);
+        }
+        if (value.length < minLength) {
+          return showError(id, `${fieldName} must be at least ${minLength} characters.`);
+        }
+        if (value.length > maxLength) {
+          return showError(id, `${fieldName} must not exceed ${maxLength} characters.`);
+        }
+        if (/\s\s+/.test(value)) {
+          return showError(id, `${fieldName} cannot contain consecutive spaces.`);
+        }
+        if (!regex.test(value)) {
+          return showError(id, `${fieldName} contains invalid characters.`);
+        }
+        clearError(id);
+        return true;
+      }
+
+      function validateSelect(id, fieldName) {
+        const value = document.getElementById(id).value;
+        if (!value) {
+          return showError(id, `Please select a ${fieldName}.`);
+        }
+        clearError(id);
+        return true;
+      }
+
+      function validateNumeric(id, fieldName, min = 0, max = Infinity) {
+        const value = document.getElementById(id).value.trim();
+        if (!value) {
+          return showError(id, `${fieldName} is required.`);
+        }
+        
+        // Handle cases like "123." or "123.0" by temporarily removing trailing dot for parsing
+        const cleanValue = value.endsWith('.') ? value.slice(0, -1) : value;
+        const numValue = parseFloat(cleanValue);
+
+        if (isNaN(numValue)) {
+          return showError(id, `${fieldName} must be a valid number.`);
+        }
+        if (numValue < min) {
+          return showError(id, `${fieldName} must be at least ${min}.`);
+        }
+        if (numValue > max) {
+          return showError(id, `${fieldName} must not exceed ${max.toLocaleString()}.`);
+        }
+        
+        // Specific digit count validation for integer part
+        const integerPart = String(numValue).split('.')[0];
+        if ((id === 'current-salary' || id === 'bonus-amount') && integerPart.length > 7) {
+          return showError(id, `${fieldName} integer part must not exceed 7 digits.`);
+        }
+
+        clearError(id);
+        return true;
+      }
+
+      // --- API call to check for duplicate records ---
+      async function checkForDuplicateRecord(employeeId, month, year) {
+        if (!employeeId || !month || !year) return true; // Don't check if fields are empty
+
+        try {
+          const response = await fetch(`http://13.201.36.187:3004/api/employee/${employeeId}/${month}/${year}`);
+          
+          if (response.status === 404) {
+            clearError('month'); // If not found, clear any previous duplicate error
+            return true; // No duplicate found
+          }
+          if (response.ok) {
+            const data = await response.json(); // Get the existing data if found
+            // You might want to display the existing record here if you're building an update feature
+            showError('month', `A record already exists for ${employeeId} in ${month} ${year}.`);
+            return false; // Duplicate found
+          }
+          throw new Error('Error checking for duplicate records.');
+        } catch (e) {
+          console.error('Error in checkForDuplicateRecord:', e);
+          // Allow submission in case of network error, but inform user
+          showHrMessage('Could not verify for duplicates due to a network error. Please try again.', 'error');
+          return true;
+        }
+      }
+
+      // --- Setup functions for dynamic content and real-time validation ---
+      function setUpYearDropdown() {
+        const yearSelect = document.getElementById('year');
+        const currentYear = new Date().getFullYear();
+        
+        yearSelect.innerHTML = '<option value="">Select Year</option>';
+        // Include current year and previous 5 years for HR panel
+        for (let i = currentYear; i >= currentYear - 5; i--) {
+          const option = document.createElement('option');
+          option.value = i;
+          option.textContent = i;
+          yearSelect.appendChild(option);
+        }
+        yearSelect.value = currentYear.toString(); // Pre-select current year
+      }
+
+      function setupRealTimeValidation() {
+        document.getElementById('employee-id-suffix').addEventListener('input', function(e) {
+          this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3); // Only allow digits, max 3
+          document.getElementById('employee-id').value = 'ATS0' + this.value; // Update hidden full ID
+
+          // Validate if enough characters are typed or on blur
+          if (this.value.length === 3 || this.value.length === 0) {
+            validateEmployeeId(document.getElementById('employee-id').value);
+          } else {
+            clearError('employee-id'); // Clear error if typing mid-way
+          }
+        });
+        document.getElementById('employee-id-suffix').addEventListener('blur', async function() {
+          const fullId = 'ATS0' + this.value;
+          if (validateEmployeeId(fullId)) {
+            const month = document.getElementById('month').value;
+            const year = document.getElementById('year').value;
+            if (month && year) {
+              await checkForDuplicateRecord(fullId, month, year);
+            }
+          }
+        });
+        
+        document.getElementById('employee-name').addEventListener('input', function() {
+          this.value = this.value.replace(/[^a-zA-Z\s]/g, '').replace(/\s+/g, ' ');
+          validateTextField('employee-name', 'Employee Name');
+        });
+        document.getElementById('employee-name').addEventListener('blur', function() {
+          validateTextField('employee-name', 'Employee Name');
+        });
+
+        document.getElementById('department').addEventListener('change', function() {
+          validateSelect('department', 'Department');
+          // Re-check duplicate on department change if other fields are filled
+          const employeeId = document.getElementById('employee-id').value;
+          const month = document.getElementById('month').value;
+          const year = document.getElementById('year').value;
+          if (employeeId && month && year) {
+            checkForDuplicateRecord(employeeId, month, year);
+          }
+        });
+        
+        document.getElementById('position').addEventListener('input', function() {
+          this.value = this.value.replace(/[^a-zA-Z\s]/g, '').replace(/\s+/g, ' ');
+          validateTextField('position', 'Position');
+        });
+        document.getElementById('position').addEventListener('blur', function() {
+          validateTextField('position', 'Position');
+        });
+        
+        document.getElementById('month').addEventListener('change', async function() {
+          validateSelect('month', 'Month');
+          const employeeId = document.getElementById('employee-id').value;
+          const year = document.getElementById('year').value;
+          if (employeeId && year) {
+            await checkForDuplicateRecord(employeeId, this.value, year);
+          }
+        });
+        
+        document.getElementById('year').addEventListener('change', async function() {
+          validateSelect('year', 'Year');
+          const employeeId = document.getElementById('employee-id').value;
+          const month = document.getElementById('month').value;
+          if (employeeId && month) {
+            await checkForDuplicateRecord(employeeId, month, this.value);
+          }
+        });
+        
+        document.getElementById('current-salary').addEventListener('input', function() {
+          let value = this.value.replace(/[^0-9.]/g, '');
+          const decimalCount = (value.match(/\./g) || []).length;
+          if (decimalCount > 1) {
+            value = value.replace(/\.(?=.*\.)/g, '');
+          }
+          const parts = value.split('.');
+          let integerPart = parts[0];
+          const decimalPart = parts[1] || '';
+          if (integerPart.length > 1 && integerPart.startsWith('0')) {
+            integerPart = integerPart.replace(/^0+/, '') || '0';
+          }
+          if (integerPart.length > 7) {
+            integerPart = integerPart.slice(0, 7);
+          }
+          let newValue = integerPart;
+          if (decimalPart) {
+            const trimmedDecimal = decimalPart.slice(0, 2);
+            newValue = `${integerPart}.${trimmedDecimal}`;
+          }
+          this.value = newValue;
+          validateNumeric('current-salary', 'Current Salary', 0, 10000000); // Max salary adjusted for 7 digits
+        });
+        document.getElementById('current-salary').addEventListener('blur', function() {
+          validateNumeric('current-salary', 'Current Salary', 0, 10000000);
+        });
+        
+        document.getElementById('increment-percentage').addEventListener('input', function() {
+          this.value = this.value.replace(/[^0-9.]/g, '');
+          const decimalCount = (this.value.match(/\./g) || []).length;
+          if (decimalCount > 1) {
+            this.value = this.value.replace(/\.(?=.*\.)/g, '');
+          }
+          if (parseFloat(this.value) > 100) {
+            this.value = '100';
+          }
+          validateNumeric('increment-percentage', 'Increment Percentage', 0, 100);
+        });
+        document.getElementById('increment-percentage').addEventListener('blur', function() {
+          validateNumeric('increment-percentage', 'Increment Percentage', 0, 100);
+        });
+
+        document.getElementById('bonus-amount').addEventListener('input', function() {
+          let value = this.value.replace(/[^0-9.]/g, '');
+          const decimalCount = (value.match(/\./g) || []).length;
+          if (decimalCount > 1) {
+            value = value.replace(/\.(?=.*\.)/g, '');
+          }
+          const parts = value.split('.');
+          let integerPart = parts[0];
+          const decimalPart = parts[1] || '';
+          if (integerPart.length > 1 && integerPart.startsWith('0')) {
+            integerPart = integerPart.replace(/^0+/, '') || '0';
+          }
+          if (integerPart.length > 7) {
+            integerPart = integerPart.slice(0, 7);
+          }
+          let newValue = integerPart;
+          if (decimalPart) {
+            const trimmedDecimal = decimalPart.slice(0, 2);
+            newValue = `${integerPart}.${trimmedDecimal}`;
+          }
+          this.value = newValue;
+          validateNumeric('bonus-amount', 'Bonus Amount', 0, 10000000); // Max bonus adjusted for 7 digits
+        });
+        document.getElementById('bonus-amount').addEventListener('blur', function() {
+          validateNumeric('bonus-amount', 'Bonus Amount', 0, 10000000);
+        });
+
+        document.getElementById('comments').addEventListener('input', function() {
+          // Regex to allow letters, numbers, common punctuation, spaces
+          this.value = this.value.replace(/[^a-zA-Z0-9\s.,!?'"-]/g, '').replace(/\s+/g, ' ');
+          validateTextField('comments', 'Performance Notes', 0, 200); // Increased max length for comments
+        });
+        document.getElementById('comments').addEventListener('blur', function() {
+          validateTextField('comments', 'Performance Notes', 0, 200);
+        });
+      }
+
+      // --- Form Submission Handler ---
+      document.getElementById('hr-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Clear any previous general messages
+        document.getElementById('hr-message').innerHTML = '';
+        document.getElementById('hr-message').className = '';
+
+        // Re-run all validations to ensure no errors exist before submission
+        const employeeId = document.getElementById('employee-id').value.trim(); // Get full ID
+        const month = document.getElementById('month').value;
+        const year = document.getElementById('year').value;
+
+        let allFieldsValid = true;
+        allFieldsValid = validateEmployeeId(employeeId) && allFieldsValid;
+        allFieldsValid = validateTextField('employee-name', 'Employee Name') && allFieldsValid;
+        allFieldsValid = validateSelect('department', 'Department') && allFieldsValid;
+        allFieldsValid = validateTextField('position', 'Position') && allFieldsValid;
+        allFieldsValid = validateSelect('month', 'Month') && allFieldsValid;
+        allFieldsValid = validateSelect('year', 'Year') && allFieldsValid;
+        allFieldsValid = validateNumeric('current-salary', 'Current Salary', 0, 10000000) && allFieldsValid;
+        allFieldsValid = validateNumeric('increment-percentage', 'Increment Percentage', 0, 100) && allFieldsValid;
+        allFieldsValid = validateNumeric('bonus-amount', 'Bonus Amount', 0, 10000000) && allFieldsValid;
+        allFieldsValid = validateTextField('comments', 'Performance Notes', 0, 200) && allFieldsValid; // Min length 0 for optional notes, max 200
+
+        const isNoDuplicate = await checkForDuplicateRecord(employeeId, month, year);
+        allFieldsValid = isNoDuplicate && allFieldsValid;
+
+        if (allFieldsValid) {
+          const employeeName = document.getElementById('employee-name').value.trim();
+          const department = document.getElementById('department').value;
+          const position = document.getElementById('position').value.trim();
+          const currentSalary = parseFloat(document.getElementById('current-salary').value);
+          const incrementPercentage = parseFloat(document.getElementById('increment-percentage').value);
+          const bonusAmount = parseFloat(document.getElementById('bonus-amount').value);
+          const comments = document.getElementById('comments').value.trim();
+
+          const incrementAmount = currentSalary * (incrementPercentage / 100);
+          const newSalary = currentSalary + incrementAmount + bonusAmount; // Corrected calculation to include bonus
+
+          try {
+            const response = await fetch('http://13.201.36.187:3004/api/employee', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                employee_id: employeeId, // Ensure field names match backend API
+                employee_name: employeeName,
+                department,
+                position,
+                month,
+                year,
+                current_salary: currentSalary,
+                increment_percentage: incrementPercentage,
+                bonus_amount: bonusAmount,
+                comments,
+                new_salary: newSalary // Include calculated new salary in payload
+              })
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || 'Failed to save employee details.');
+            }
+
+            const record = await response.json(); // Backend might return the saved record
+
+            // Update the summary display with formatted values
+            document.getElementById('summary-employee').textContent = `${employeeName} (${employeeId})`;
+            document.getElementById('summary-current').textContent = `₹${currentSalary.toFixed(2)}`;
+            document.getElementById('summary-increment').textContent = `₹${incrementAmount.toFixed(2)} (${incrementPercentage.toFixed(2)}%)`;
+            document.getElementById('summary-bonus').textContent = `₹${bonusAmount.toFixed(2)}`;
+            document.getElementById('summary-new-salary').textContent = `₹${newSalary.toFixed(2)}`; // Use frontend calculated newSalary
+            document.getElementById('summary-effective').textContent = `${month} ${year}`;
+
+            const calculationDisplay = document.getElementById('calculation-display');
+            calculationDisplay.classList.add('active'); // Show summary
+
+            showHrMessage('Employee details saved successfully!', 'success');
+
+            // Reset form after successful submission and a short delay
+            setTimeout(() => {
+              this.reset();
+              document.getElementById('employee-id-suffix').value = ''; // Manually clear suffix
+              document.getElementById('employee-id').value = ''; // Manually clear hidden full ID
+              setUpYearDropdown(); // Reset year dropdown to current year
+              // Hide calculation display after another delay
+              setTimeout(() => {
+                calculationDisplay.classList.remove('active');
+              }, 5000);
+            }, 300); // Short delay to let user see success message before reset
+          } catch (error) {
+            console.error('Server error:', error);
+            showHrMessage(error.message || 'Failed to save employee details due to a server error.', 'error');
+          }
+        } else {
+          showHrMessage('Please correct the errors in the form before submitting.', 'error');
+        }
+      });
+
+      // Initialize on DOM Load
+      setUpYearDropdown();
+      setupRealTimeValidation();
+    });
+  </script>
+</body>
+</html>
