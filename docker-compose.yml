@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin234
+      POSTGRES_DB: employee_portal
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build: ./Backend
+    depends_on:
+      - postgres
+    environment:
+      PGUSER: postgres
+      PGPASSWORD: admin234
+      PGDATABASE: employee_portal
+      PGHOST: postgres
+      PGPORT: 5432
+    ports:
+      - "3004:3004"
+
+  employee_increment:
+    build: ./Employee-Increment
+    ports:
+      - "8008:80"
+    depends_on:
+      - backend
+
+  hr_increment:
+    build: ./HR-Increment
+    ports:
+      - "8009:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+
