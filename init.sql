@@ -1,11 +1,8 @@
 
-CREATE DATABASE employee_portal;
+-- Switch to the correct DB (optional but safe)
+\c employee_portal;
 
-
-\c employee_portal
-
-
-CREATE TABLE employee_records (
+CREATE TABLE IF NOT EXISTS employee_records (
     id SERIAL PRIMARY KEY,
     employee_id VARCHAR(7) NOT NULL CHECK (employee_id ~ '^ATS0(?!000)\d{3}$'),
     employee_name VARCHAR(30) NOT NULL CHECK (employee_name ~ '^[a-zA-Z\s]{5,30}$'),
@@ -24,7 +21,6 @@ CREATE TABLE employee_records (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (employee_id, month, year)
 );
-
 
 CREATE INDEX idx_employee_id ON employee_records(employee_id);
 CREATE INDEX idx_month_year ON employee_records(month, year);
