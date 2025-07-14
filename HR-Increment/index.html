@@ -529,7 +529,7 @@
         console.log('HR Panel - Sending GET request for duplicate check:', { employeeId, month, year });
         
         try {
-          const response = await fetch(`http://localhost:3000/api/employee/${employeeId}/${month}/${year}`);
+          const response = await fetch(`http://13.201.36.187:3004/api/employee/${employeeId}/${month}/${year}`);
           if (response.status === 404) {
             clearError('month');
             return true;
@@ -799,7 +799,7 @@
           const newSalary = currentSalary + incrementAmount;
 
           try {
-            const response = await fetch('http://localhost:3000/api/employee', {
+            const response = await fetch('http://13.201.36.187:3004/api/employee', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -837,7 +837,7 @@
               setTimeout(() => {
                 calculationDisplay.classList.remove('active');
               }, 5000);
-            }, 3000);
+            }, 3004);
           } catch (error) {
             console.error('Server error:', error.message);
             showMessage('hr-message', error.message || 'Failed to save employee details due to server error', 'error');
