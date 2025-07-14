@@ -1,16 +1,15 @@
--- Connect to the target database (optional when using POSTGRES_DB)
--- \c employee_portal  -- Remove or comment this out in Docker init
+-- Do NOT include \c employee_portal if using Docker's POSTGRES_DB env variable
 
 -- Create the employee_records table
 CREATE TABLE IF NOT EXISTS employee_records (
     id SERIAL PRIMARY KEY,
-    employee_id VARCHAR(7) NOT NULL CHECK (employee_id ~ '^ATS0(?!000)\d{3}$'),
+    employee_id VARCHAR(7) NOT NULL CHECK (employee_id ~ '^ATS0(?!000)\\d{3}$'),
     employee_name VARCHAR(30) NOT NULL CHECK (employee_name ~ '^[a-zA-Z\\s]{5,30}$'),
     department VARCHAR(50) NOT NULL,
     position VARCHAR(30) NOT NULL CHECK (position ~ '^[a-zA-Z\\s]{5,30}$'),
-    month VARCHAR(10) NOT NULL CHECK (month IN (
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
+    month VARCHAR(10) NOT NULL CHECK (LOWER(month) IN (
+        'january', 'february', 'march', 'april', 'may', 'june',
+        'july', 'august', 'september', 'october', 'november', 'december'
     )),
     year INTEGER NOT NULL CHECK (year >= 2020 AND year <= 2030),
     current_salary DECIMAL(10,2) NOT NULL CHECK (current_salary >= 0 AND current_salary <= 1000000),
@@ -22,6 +21,6 @@ CREATE TABLE IF NOT EXISTS employee_records (
     UNIQUE (employee_id, month, year)
 );
 
--- Create indexes
+-- Indexes
 CREATE INDEX IF NOT EXISTS idx_employee_id ON employee_records(employee_id);
 CREATE INDEX IF NOT EXISTS idx_month_year ON employee_records(month, year);
