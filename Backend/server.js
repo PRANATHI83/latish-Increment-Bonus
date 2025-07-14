@@ -8,7 +8,7 @@ const port = 3004;
 // PostgreSQL connection configuration
 const pool = new Pool({
   user: 'postgres',
-  host: 'postgres',
+  host: 'postgres', // Docker service name
   database: 'employee_portal',
   password: 'admin234',
   port: 5432,
@@ -18,12 +18,22 @@ const pool = new Pool({
 app.use(cors());
 app.use(express.json());
 
-// Helper: Normalize month input
+// Valid months
+const VALID_MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+// Helper to normalize and validate month input
 function normalizeMonth(month) {
-  return month.charAt(0).toUpperCase() + month.slice(1).toLowerCase();
+  const formatted = month.charAt(0).toUpperCase() + month.slice(1).toLowerCase();
+  if (!VALID_MONTHS.includes(formatted)) {
+    throw new Error('Invalid month name');
+  }
+  return formatted;
 }
 
-// Error handling middleware
+// Error handler middleware
 const errorHandler = (err, req, res, next) => {
   console.error('❌ Internal Error:', err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
@@ -33,8 +43,9 @@ const errorHandler = (err, req, res, next) => {
 app.get('/api/employee/:employeeId/:month/:year', async (req, res, next) => {
   try {
     let { employeeId, month, year } = req.params;
-    month = normalizeMonth(month);
 
+    // Normalize and validate inputs
+    month = normalizeMonth(month);
     const yearAsInt = parseInt(year, 10);
     if (isNaN(yearAsInt)) {
       return res.status(400).json({ error: 'Invalid year format' });
@@ -69,19 +80,23 @@ app.post('/api/employee', async (req, res, next) => {
       currentSalary, incrementPercentage, bonusAmount, comments
     } = req.body;
 
+    // Validate Employee ID
     if (!employeeId.match(/^ATS0(?!000)\d{3}$/)) {
       return res.status(400).json({ error: 'Invalid Employee ID format' });
     }
 
+    // Validate numeric values
     if (currentSalary < 0 || currentSalary > 1000000 ||
         bonusAmount < 0 || bonusAmount > 1000000 ||
         incrementPercentage < 0 || incrementPercentage > 100) {
       return res.status(400).json({ error: 'Invalid numeric values' });
     }
 
+    // Normalize and validate month
     const normalizedMonth = normalizeMonth(month);
     const yearAsInt = parseInt(year, 10);
 
+    // Check for duplicate
     const duplicate = await pool.query(`
       SELECT 1 FROM employee_records
       WHERE employee_id = $1 AND month = $2 AND year = $3
@@ -91,9 +106,11 @@ app.post('/api/employee', async (req, res, next) => {
       return res.status(409).json({ error: 'Record already exists for this month and year' });
     }
 
+    // Calculate new salary
     const incrementAmount = currentSalary * (incrementPercentage / 100);
     const newSalary = currentSalary + incrementAmount;
 
+    // Insert into DB
     const insert = await pool.query(`
       INSERT INTO employee_records (
         employee_id, employee_name, department, position, month, year,
@@ -106,6 +123,8 @@ app.post('/api/employee', async (req, res, next) => {
     ]);
 
     const record = insert.rows[0];
+
+    // Respond with parsed data
     res.json({
       ...record,
       current_salary: parseFloat(record.current_salary),
@@ -118,10 +137,10 @@ app.post('/api/employee', async (req, res, next) => {
   }
 });
 
-// Apply error handler
+// Error handler (last middleware)
 app.use(errorHandler);
 
 // Start server
 app.listen(port, () => {
-  console.log(`🚀 Server running on http://localhost:${port}`);
+  console.log(`🚀 Server running on http://13.201.36.187:${port}`);
 });
